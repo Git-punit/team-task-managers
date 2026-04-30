@@ -2,6 +2,8 @@
 
 A professional, full-stack project and task management application. Built with a modern **React + Vite** frontend and a robust **Node.js/Express** backend, this tool empowers teams to organize projects, assign tasks, and track progress seamlessly.
 
+**🌍 Live Demo:** [https://team-task-managers-c3u2.vercel.app/login](https://team-task-managers-c3u2.vercel.app/login)
+
 ## ✨ Key Features
 
 - **🔐 Secure Authentication:** JWT-based login and registration with encrypted passwords using `bcryptjs`.
@@ -78,6 +80,3 @@ The repository is completely optimized for Vercel deployment out-of-the-box.
    - `PORT=5001`
    - `JWT_SECRET=your_secure_random_string`
 *(Note: Because SQLite saves to a local file, any data added on the live site will be reset when the server restarts unless you attach a persistent Disk/Volume to your backend service).*
-
-## 📸 Preview
-*(Upload a screenshot of your beautiful Dashboard and Kanban board here to show it off!)*
