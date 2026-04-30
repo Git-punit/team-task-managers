@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import { AuthContext } from '../context/AuthContext';
 import { Plus, FolderKanban, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
@@ -16,7 +17,7 @@ export default function Projects() {
 
   const fetchProjects = async () => {
     try {
-      const res = await axios.get('http://localhost:5001/api/projects');
+      const res = await axios.get(`${API_BASE_URL}/api/projects`);
       setProjects(res.data);
     } catch (error) {
       toast.error('Failed to fetch projects');
@@ -32,7 +33,7 @@ export default function Projects() {
   const handleCreateProject = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5001/api/projects', { name, description });
+      await axios.post(`${API_BASE_URL}/api/projects`, { name, description });
       toast.success('Project created successfully');
       setIsModalOpen(false);
       setName('');

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import { AuthContext } from '../context/AuthContext';
 import { format } from 'date-fns';
 import { AlertCircle, CheckCircle2, Clock, ListTodo } from 'lucide-react';
@@ -16,8 +17,8 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         const [metricsRes, tasksRes] = await Promise.all([
-          axios.get('http://localhost:5001/api/dashboard'),
-          axios.get('http://localhost:5001/api/tasks')
+          axios.get(`${API_BASE_URL}/api/dashboard`),
+          axios.get(`${API_BASE_URL}/api/tasks`)
         ]);
         setMetrics(metricsRes.data);
         

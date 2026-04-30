@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import { AuthContext } from '../context/AuthContext';
 import { Plus, Clock, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -23,13 +24,13 @@ export default function Tasks() {
 
   const fetchData = async () => {
     try {
-      const tasksRes = await axios.get('http://localhost:5001/api/tasks');
+      const tasksRes = await axios.get(`${API_BASE_URL}/api/tasks`);
       setTasks(tasksRes.data);
       
       if (user?.role === 'Admin') {
         const [projRes, usersRes] = await Promise.all([
-          axios.get('http://localhost:5001/api/projects'),
-          axios.get('http://localhost:5001/api/users')
+          axios.get(`${API_BASE_URL}/api/projects`),
+          axios.get(`${API_BASE_URL}/api/users`)
         ]);
         setProjects(projRes.data);
         setUsers(usersRes.data);
@@ -50,7 +51,7 @@ export default function Tasks() {
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5001/api/tasks', {
+      await axios.post(`${API_BASE_URL}/api/tasks`, {
         title, description, projectId, assignedTo, dueDate
       });
       toast.success('Task created successfully');
@@ -66,7 +67,7 @@ export default function Tasks() {
 
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
-      await axios.put(`http://localhost:5001/api/tasks/${taskId}`, { status: newStatus });
+      await axios.put(`${API_BASE_URL}/api/tasks/${taskId}`, { status: newStatus });
       fetchData();
       toast.success('Task updated');
     } catch (error) {
@@ -77,7 +78,7 @@ export default function Tasks() {
   const handleDeleteTask = async (taskId) => {
     if (!window.confirm('Are you sure you want to delete this task?')) return;
     try {
-      await axios.delete(`http://localhost:5001/api/tasks/${taskId}`);
+      await axios.delete(`${API_BASE_URL}/api/tasks/${taskId}`);
       fetchData();
       toast.success('Task deleted');
     } catch (error) {
