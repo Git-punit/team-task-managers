@@ -1,62 +1,83 @@
-# Team Task Manager
+# 🚀 Team Task Manager
 
-A full-stack project tracking and task management web application built with a modern React frontend and Node.js/Express backend.
+A professional, full-stack project and task management application. Built with a modern **React + Vite** frontend and a robust **Node.js/Express** backend, this tool empowers teams to organize projects, assign tasks, and track progress seamlessly.
 
-## 🚀 Features
-- **Authentication:** Secure JWT-based Login and Signup.
-- **Role-Based Access Control:** `Admin` and `Member` roles. Admins can create projects and assign tasks, Members can view assigned tasks and change task statuses.
-- **Projects Management:** Admins can create and view projects.
-- **Task Management (Kanban Board):** Create tasks, assign them to members, and manage their status via a dynamic Drag-and-Drop Kanban Board.
-- **Dashboard:** At-a-glance metrics covering total tasks, pending, in-progress, completed, and overdue tasks.
-- **Glassmorphism UI:** Premium modern design using CSS and lucide-react icons.
+## ✨ Key Features
 
-## ⚙️ Tech Stack
-- **Frontend:** React, Vite, React Router, Axios, Lucide React
-- **Backend:** Node.js, Express, SQLite (Raw SQL via `sqlite`/`sqlite3`), JWT, bcryptjs
+- **🔐 Secure Authentication:** JWT-based login and registration with encrypted passwords using `bcryptjs`.
+- **👥 Role-Based Access Control (RBAC):** 
+  - **Admin:** Can create projects, create/delete tasks, and assign tasks to any team member.
+  - **Member:** Can view their assigned tasks and update task statuses via the Kanban board.
+- **📋 Dynamic Kanban Board:** An interactive drag-and-drop interface for managing task statuses (`Pending`, `In Progress`, `Completed`).
+- **📊 Analytics Dashboard:** At-a-glance metrics calculating total, pending, in-progress, completed, and overdue tasks.
+- **🎨 Premium Glassmorphism UI:** A stunning, modern, and responsive interface featuring glass-like panels, vibrant gradients, and smooth micro-animations.
+- **⚙️ Built-In Limits:** Enforces a maximum of 10 tasks to simulate a tier-based constraint and keep the demo clean.
 
-## 💻 Local Setup
+## 🛠️ Tech Stack
 
-1. **Clone the repository** (or download the source code).
-2. **Setup Backend:**
+**Frontend:**
+- React 19 (via Vite)
+- React Router DOM for routing
+- Axios for API requests
+- Context API for global state management
+- Vanilla CSS with Glassmorphism design system
+- Lucide React for modern iconography
+
+**Backend:**
+- Node.js & Express.js
+- SQLite3 (via raw SQL) for lightweight, serverless database storage
+- JSON Web Tokens (JWT) for secure session management
+- CORS and dotenv for environment configuration
+
+## 📂 Project Structure
+
+This project uses a modern, unified repository structure for easy deployment:
+- **`/` (Root):** Contains the React frontend codebase, `vite.config.js`, and Vercel configuration.
+- **`/backend`:** Contains the Node.js Express server, SQLite database, and API logic.
+
+## 💻 Local Setup & Installation
+
+Running this project locally is incredibly easy. Both the frontend and backend can be started together with a single command.
+
+1. **Clone the repository:**
    ```bash
-   cd backend
-   npm install
-   node index.js
+   git clone <your-github-repo-url>
+   cd team-task-managers
    ```
-   *The backend will run on `http://localhost:5000`. An SQLite database will automatically be initialized.*
 
-3. **Setup Frontend:**
+2. **Install all dependencies:**
    ```bash
-   cd frontend
-   npm install
+   # This custom script installs dependencies for both the frontend (root) and the backend
+   npm run install-all
+   ```
+
+3. **Start the development server:**
+   ```bash
+   # Starts both the Express backend (port 5001) and Vite frontend (port 5173) simultaneously
    npm run dev
    ```
-   *The frontend will be accessible at `http://localhost:5173`.*
 
-## 🌐 Deployment on Railway
+4. **Access the application:**
+   - Open your browser to `http://localhost:5173`
 
-To deploy this app on Railway (as per your requirements):
+*(Note: The backend database is already seeded with 3 projects and 10 sample tasks so you can explore the app immediately!)*
 
-1. **Push your code to a GitHub repository.** Ensure your root folder contains both `frontend` and `backend` directories.
-2. **Deploy Backend:**
-   - Go to [Railway.app](https://railway.app/).
-   - Click **New Project** > **Deploy from GitHub repo**.
-   - Select your repository.
-   - Go to your backend service settings in Railway:
-     - Under **Settings > Root Directory**, type `/backend`.
-     - Go to **Variables** and add: `PORT=5000`, `JWT_SECRET=your_secure_secret_here`.
-     - *Note: Railway has ephemeral storage by default. To make SQLite persistent, you must attach a **Volume** to your backend service in Railway and configure the DB path accordingly, or migrate to PostgreSQL.*
-3. **Deploy Frontend:**
-   - Click **New Service** > **Deploy from GitHub repo** and select your repo again.
-   - Go to the new service settings:
-     - Under **Settings > Root Directory**, type `/frontend`.
-     - Ensure the build command is `npm run build` and start command is `npm run preview`.
-     - Under **Variables**, add any environment variables if needed.
-     - *Important: Update the Axios Base URL in your frontend codebase to match your deployed backend Railway URL instead of `http://localhost:5000`.*
-4. **Generate Live URLs** for both services in the Networking tab on Railway.
+## 🚀 Deployment Instructions
 
-## 📦 Submission
+### Frontend (Vercel)
+The repository is completely optimized for Vercel deployment out-of-the-box.
+1. Connect your GitHub repository to Vercel.
+2. Vercel will automatically detect **Vite** as the framework since the frontend configuration is in the root folder. No custom settings needed!
+3. Add an Environment Variable in your Vercel project settings:
+   - `VITE_API_URL` = `<your-live-backend-url>` (Once your backend is deployed)
 
-- **Live URL:** [Insert Railway Frontend URL Here]
-- **GitHub Repo:** [Insert Repo Link Here]
-- **Demo Video:** [Insert Link to 2-5 min Demo Video Here]
+### Backend (Render / Railway)
+1. Deploy the repository as a Node.js Web Service on a platform like Render or Railway.
+2. Set the **Root Directory** setting in your deployment platform to `backend`.
+3. Add the following Environment Variables:
+   - `PORT=5001`
+   - `JWT_SECRET=your_secure_random_string`
+*(Note: Because SQLite saves to a local file, any data added on the live site will be reset when the server restarts unless you attach a persistent Disk/Volume to your backend service).*
+
+## 📸 Preview
+*(Upload a screenshot of your beautiful Dashboard and Kanban board here to show it off!)*
