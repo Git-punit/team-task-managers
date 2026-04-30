@@ -125,6 +125,12 @@ app.get('/api/tasks', authenticateToken, async (req, res) => {
 
 app.post('/api/tasks', authenticateToken, requireAdmin, async (req, res) => {
   try {
+    // Check if the maximum limit of 10 tasks has been reached
+    const countResult = await db.get('SELECT COUNT(*) as count FROM tasks');
+    if (countResult.count >= 10) {
+      return res.status(400).json({ message: 'Maximum limit of 10 tasks reached.' });
+    }
+
     const { title, description, projectId, assignedTo, dueDate } = req.body;
     const result = await db.run(
       'INSERT INTO tasks (title, description, projectId, assignedTo, dueDate, createdBy) VALUES (?, ?, ?, ?, ?, ?)',
