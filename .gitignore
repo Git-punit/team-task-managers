@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend\ 2/node_modules/
+
+# Build files
+dist/
+frontend\ 2/dist/
+
+# Environment variables
+.env
+backend/.env
+
+# Databases
+*.sqlite
+backend/database.sqlite
+
+# System files
+.DS_Store
