@@ -16,6 +16,7 @@ export default function Tasks() {
   // Quick-add state per column
   const [quickAdd, setQuickAdd] = useState(null); // 'Pending' | 'In Progress' | 'Completed'
   const [quickTitle, setQuickTitle] = useState('');
+  const [quickDescription, setQuickDescription] = useState('');
 
   // Full modal form state
   const [title, setTitle] = useState('');
@@ -58,13 +59,14 @@ export default function Tasks() {
     try {
       await axios.post(`${API_BASE_URL}/api/tasks`, {
         title: quickTitle.trim(),
-        description: '',
+        description: quickDescription.trim(),
         projectId: projects[0]?.id || '',
         assignedTo: users[0]?.id || '',
         dueDate: today,
       });
       toast.success('Task added!');
       setQuickTitle('');
+      setQuickDescription('');
       setQuickAdd(null);
       fetchData();
     } catch (err) {
@@ -193,7 +195,7 @@ export default function Tasks() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span className="count">{colTasks.length}</span>
                   <button
-                    onClick={() => { setQuickAdd(isQuickAdding ? null : status); setQuickTitle(''); }}
+                    onClick={() => { setQuickAdd(isQuickAdding ? null : status); setQuickTitle(''); setQuickDescription(''); }}
                     title="Add task"
                     style={{
                       background: isQuickAdding ? 'rgba(232,98,42,0.25)' : 'rgba(255,255,255,0.08)',
@@ -236,9 +238,27 @@ export default function Tasks() {
                       value={quickTitle}
                       onChange={e => setQuickTitle(e.target.value)}
                     />
+                    <textarea
+                      placeholder="Description (optional)…"
+                      value={quickDescription}
+                      onChange={e => setQuickDescription(e.target.value)}
+                      style={{
+                        padding: '8px 12px',
+                        background: 'var(--bg)',
+                        border: '1px solid var(--accent)',
+                        borderRadius: 'var(--radius-sm)',
+                        color: 'var(--text)',
+                        fontSize: '0.9rem',
+                        outline: 'none',
+                        fontFamily: "'DM Sans', sans-serif",
+                        width: '100%',
+                        resize: 'vertical',
+                        minHeight: '60px'
+                      }}
+                    />
                     <div className="quick-add-actions">
                       <button type="submit" className="btn-add">Add</button>
-                      <button type="button" className="btn-cancel" onClick={() => { setQuickAdd(null); setQuickTitle(''); }}>
+                      <button type="button" className="btn-cancel" onClick={() => { setQuickAdd(null); setQuickTitle(''); setQuickDescription(''); }}>
                         Cancel
                       </button>
                     </div>
