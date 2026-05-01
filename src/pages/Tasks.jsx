@@ -122,14 +122,12 @@ export default function Tasks() {
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
         <h4 style={{ fontSize: '0.95rem', fontWeight: 600, lineHeight: 1.4 }}>{task.title}</h4>
-        {user?.role === 'Admin' && (
           <button
             onClick={() => handleDeleteTask(task.id)}
             style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', flexShrink: 0, padding: '2px' }}
           >
             <Trash2 size={14} />
           </button>
-        )}
       </div>
 
       {task.description && (

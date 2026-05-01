@@ -175,9 +175,19 @@ app.put('/api/tasks/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.delete('/api/tasks/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.delete('/api/tasks/:id', authenticateToken, async (req, res) => {
   try {
-    await db.run('DELETE FROM tasks WHERE id = ?', [req.params.id]);
+    const { id } = req.params;
+    const task = await db.get('SELECT * FROM tasks WHERE id = ?', [id]);
+    
+    if (!task) return res.status(404).json({ message: 'Task not found' });
+    
+    // Non-admins can only delete their own tasks
+    if (req.user.role !== 'Admin' && task.assignedTo !== req.user.id && task.createdBy !== req.user.id) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    await db.run('DELETE FROM tasks WHERE id = ?', [id]);
     res.json({ message: 'Task deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
