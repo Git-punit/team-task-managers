@@ -17,3 +17,7 @@ backend/database.sqlite
 
 # System files
 .DS_Store
+
+node_modules/
+target/
+.env
