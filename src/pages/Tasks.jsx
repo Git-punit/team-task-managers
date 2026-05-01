@@ -28,16 +28,17 @@ export default function Tasks() {
 
   const fetchData = async () => {
     try {
-      const tasksRes = await axios.get(`${API_BASE_URL}/api/tasks`);
+      const [tasksRes, projRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/api/tasks`),
+        axios.get(`${API_BASE_URL}/api/projects`),
+      ]);
       setTasks(tasksRes.data);
+      setProjects(projRes.data);
+      if (projRes.data.length > 0) setProjectId(projRes.data[0].id);
+
       if (user?.role === 'Admin') {
-        const [projRes, usersRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/api/projects`),
-          axios.get(`${API_BASE_URL}/api/users`),
-        ]);
-        setProjects(projRes.data);
+        const usersRes = await axios.get(`${API_BASE_URL}/api/users`);
         setUsers(usersRes.data);
-        if (projRes.data.length > 0) setProjectId(projRes.data[0].id);
         if (usersRes.data.length > 0) setAssignedTo(usersRes.data[0].id);
       }
     } catch {
@@ -191,32 +192,31 @@ export default function Tasks() {
                 <span>{status}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span className="count">{colTasks.length}</span>
-                  {user?.role === 'Admin' && (
-                    <button
-                      onClick={() => { setQuickAdd(isQuickAdding ? null : status); setQuickTitle(''); }}
-                      title="Add task"
-                      style={{
-                        background: isQuickAdding ? 'rgba(232,98,42,0.25)' : 'rgba(255,255,255,0.08)',
-                        border: 'none',
-                        color: isQuickAdding ? 'var(--accent)' : 'var(--text-muted)',
-                        width: '24px',
-                        height: '24px',
-                        borderRadius: '50%',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '18px',
-                        lineHeight: 1,
-                        transition: 'all 0.18s',
-                        flexShrink: 0,
-                      }}
-                      onMouseEnter={e => { if (!isQuickAdding) { e.currentTarget.style.background = 'rgba(232,98,42,0.2)'; e.currentTarget.style.color = 'var(--accent)'; } }}
-                      onMouseLeave={e => { if (!isQuickAdding) { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'var(--text-muted)'; } }}
-                    >
-                      +
-                    </button>
-                  )}
+                  <button
+                    onClick={() => { setQuickAdd(isQuickAdding ? null : status); setQuickTitle(''); }}
+                    title="Add task"
+                    style={{
+                      background: isQuickAdding ? 'rgba(232,98,42,0.25)' : 'rgba(255,255,255,0.08)',
+                      border: 'none',
+                      color: isQuickAdding ? 'var(--accent)' : 'var(--text-muted)',
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '20px',
+                      lineHeight: 1,
+                      transition: 'all 0.18s',
+                      flexShrink: 0,
+                      fontWeight: 300,
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(232,98,42,0.2)'; e.currentTarget.style.color = 'var(--accent)'; }}
+                    onMouseLeave={e => { if (!isQuickAdding) { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'var(--text-muted)'; } }}
+                  >
+                    +
+                  </button>
                 </div>
               </div>
 
@@ -227,9 +227,8 @@ export default function Tasks() {
                 )}
               </div>
 
-              {/* Quick-add area — Admin only, all columns */}
-              {user?.role === 'Admin' && (
-                <div className="quick-add-area" style={{ display: isQuickAdding ? 'block' : 'none' }}>
+              {/* Quick-add area — all users */}
+              <div className="quick-add-area" style={{ display: isQuickAdding ? 'block' : 'none' }}>
                   <form className="quick-add-form" onSubmit={handleQuickAdd}>
                     <input
                       autoFocus
@@ -245,7 +244,6 @@ export default function Tasks() {
                     </div>
                   </form>
                 </div>
-              )}
             </div>
           );
         })}
