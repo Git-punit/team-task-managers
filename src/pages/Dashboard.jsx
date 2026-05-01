@@ -3,7 +3,8 @@ import axios from 'axios';
 import API_BASE_URL from '../config';
 import { AuthContext } from '../context/AuthContext';
 import { format } from 'date-fns';
-import { AlertCircle, CheckCircle2, Clock, ListTodo } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, ListTodo, Plus, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -13,30 +14,74 @@ export default function Dashboard() {
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Task creation modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [projects, setProjects] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [projectId, setProjectId] = useState('');
+  const [assignedTo, setAssignedTo] = useState('');
+  const [dueDate, setDueDate] = useState('');
+
+  const fetchDashboardData = async () => {
+    try {
+      const [metricsRes, tasksRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/api/dashboard`),
+        axios.get(`${API_BASE_URL}/api/tasks`)
+      ]);
+      setMetrics(metricsRes.data);
+      setAllTasks(tasksRes.data);
+      const sortedTasks = [...tasksRes.data]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5);
+      setRecentTasks(sortedTasks);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [metricsRes, tasksRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/api/dashboard`),
-          axios.get(`${API_BASE_URL}/api/tasks`)
-        ]);
-        setMetrics(metricsRes.data);
-        
-        setAllTasks(tasksRes.data);
-        
-        // Get 5 most recent tasks
-        const sortedTasks = [...tasksRes.data]
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          .slice(0, 5);
-        setRecentTasks(sortedTasks);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchDashboardData();
   }, []);
+
+  const openModal = async () => {
+    if (projects.length === 0) {
+      try {
+        const [projRes, usersRes] = await Promise.all([
+          axios.get(`${API_BASE_URL}/api/projects`),
+          axios.get(`${API_BASE_URL}/api/users`)
+        ]);
+        setProjects(projRes.data);
+        setUsers(usersRes.data);
+        if (projRes.data.length > 0) setProjectId(projRes.data[0].id);
+        if (usersRes.data.length > 0) setAssignedTo(usersRes.data[0].id);
+      } catch (error) {
+        toast.error('Failed to load projects/users');
+        return;
+      }
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleCreateTask = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API_BASE_URL}/api/tasks`, {
+        title, description, projectId, assignedTo, dueDate
+      });
+      toast.success('Task created successfully!');
+      setIsModalOpen(false);
+      setTitle('');
+      setDescription('');
+      setDueDate('');
+      fetchDashboardData();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error creating task');
+    }
+  };
 
   if (loading) return <div>Loading dashboard...</div>;
 
@@ -57,9 +102,21 @@ export default function Dashboard() {
 
   return (
     <div>
-      <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '2rem', marginBottom: '8px' }}>Dashboard</h1>
-        <p style={{ color: 'var(--text-muted)' }}>Welcome back, {user?.name}. Here's what's happening.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
+        <div>
+          <h1 style={{ fontSize: '2rem', marginBottom: '8px' }}>Dashboard</h1>
+          <p style={{ color: 'var(--text-muted)' }}>Welcome back, {user?.name}. Here's what's happening.</p>
+        </div>
+        {user?.role === 'Admin' && (
+          <button
+            className="glass-button"
+            onClick={openModal}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
+            <Plus size={20} />
+            Add Task
+          </button>
+        )}
       </div>
 
       <div className="metrics-grid" style={{ marginBottom: '40px' }}>
@@ -150,6 +207,123 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Floating Action Button */}
+      {user?.role === 'Admin' && (
+        <button
+          onClick={openModal}
+          title="Add New Task"
+          style={{
+            position: 'fixed',
+            bottom: '32px',
+            right: '32px',
+            width: '56px',
+            height: '56px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--primary), #7c3aed)',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 24px rgba(79, 70, 229, 0.5)',
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            zIndex: 100,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(79, 70, 229, 0.7)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(79, 70, 229, 0.5)'; }}
+        >
+          <Plus size={28} color="white" />
+        </button>
+      )}
+
+      {/* Create Task Modal */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="glass-panel modal-content">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <h2 style={{ fontSize: '1.5rem', margin: 0 }}>Create New Task</h2>
+              <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                <X size={22} />
+              </button>
+            </div>
+            <form onSubmit={handleCreateTask} style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
+              <div className="form-group">
+                <label>Task Title</label>
+                <input 
+                  type="text" 
+                  className="glass-input" 
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea 
+                  className="glass-input" 
+                  rows="3"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="form-group">
+                  <label>Project</label>
+                  <select 
+                    className="glass-input" 
+                    value={projectId} 
+                    onChange={(e) => setProjectId(e.target.value)}
+                    style={{ backgroundColor: 'var(--bg-color)' }}
+                    required
+                  >
+                    <option value="" disabled>Select Project</option>
+                    {projects.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Assign To</label>
+                  <select 
+                    className="glass-input" 
+                    value={assignedTo} 
+                    onChange={(e) => setAssignedTo(e.target.value)}
+                    style={{ backgroundColor: 'var(--bg-color)' }}
+                    required
+                  >
+                    <option value="" disabled>Select User</option>
+                    {users.map(u => (
+                      <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Due Date</label>
+                <input 
+                  type="date" 
+                  className="glass-input" 
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  required 
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
+                <button type="button" className="glass-button" style={{ background: 'transparent', border: '1px solid var(--glass-border)' }} onClick={() => setIsModalOpen(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="glass-button">
+                  Create Task
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
