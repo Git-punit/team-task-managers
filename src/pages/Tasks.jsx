@@ -2,43 +2,22 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config';
 import { AuthContext } from '../context/AuthContext';
-import { Plus, Clock, Trash2 } from 'lucide-react';
+import { Clock, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
 export default function Tasks() {
   const [tasks, setTasks] = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   
   const { user } = useContext(AuthContext);
-
-  // Form states
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [projectId, setProjectId] = useState('');
-  const [assignedTo, setAssignedTo] = useState('');
-  const [dueDate, setDueDate] = useState('');
 
   const fetchData = async () => {
     try {
       const tasksRes = await axios.get(`${API_BASE_URL}/api/tasks`);
       setTasks(tasksRes.data);
-      
-      // All users need the projects list for the Add Task form
-      const projRes = await axios.get(`${API_BASE_URL}/api/projects`);
-      setProjects(projRes.data);
-      if (projRes.data.length > 0) setProjectId(projRes.data[0].id);
-
-      if (user?.role === 'Admin') {
-        const usersRes = await axios.get(`${API_BASE_URL}/api/users`);
-        setUsers(usersRes.data);
-        if (usersRes.data.length > 0) setAssignedTo(usersRes.data[0].id);
-      }
     } catch (error) {
-      toast.error('Failed to fetch data');
+      toast.error('Failed to fetch tasks');
     } finally {
       setLoading(false);
     }
@@ -47,23 +26,6 @@ export default function Tasks() {
   useEffect(() => {
     fetchData();
   }, [user]);
-
-  const handleCreateTask = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(`${API_BASE_URL}/api/tasks`, {
-        title, description, projectId, assignedTo, dueDate
-      });
-      toast.success('Task created successfully');
-      setIsModalOpen(false);
-      setTitle('');
-      setDescription('');
-      setDueDate('');
-      fetchData();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Error creating task');
-    }
-  };
 
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
@@ -150,15 +112,9 @@ export default function Tasks() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-        <div>
-          <h1 style={{ fontSize: '2rem', marginBottom: '8px' }}>Tasks</h1>
-          <p style={{ color: 'var(--text-muted)' }}>Manage and track progress</p>
-        </div>
-        <button className="glass-button" onClick={() => setIsModalOpen(true)}>
-          <Plus size={20} />
-          Add Task
-        </button>
+      <div style={{ marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '2rem', marginBottom: '8px' }}>Tasks</h1>
+        <p style={{ color: 'var(--text-muted)' }}>Manage and track your team's progress</p>
       </div>
 
       <div className="kanban-board">
@@ -181,117 +137,6 @@ export default function Tasks() {
           </div>
         ))}
       </div>
-
-      {/* Floating Action Button for all users */}
-      <button
-        onClick={() => setIsModalOpen(true)}
-        title="Add New Task"
-        style={{
-          position: 'fixed',
-          bottom: '32px',
-          right: '32px',
-          width: '56px',
-          height: '56px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--primary), #7c3aed)',
-          border: 'none',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 4px 24px rgba(79, 70, 229, 0.5)',
-          transition: 'transform 0.2s, box-shadow 0.2s',
-          zIndex: 100,
-        }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(79, 70, 229, 0.7)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(79, 70, 229, 0.5)'; }}
-      >
-        <Plus size={28} color="white" />
-      </button>
-
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="glass-panel modal-content">
-            <h2 style={{ fontSize: '1.5rem' }}>Add New Task</h2>
-            <form onSubmit={handleCreateTask} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div className="form-group">
-                <label>Task Title</label>
-                <input 
-                  type="text" 
-                  className="glass-input" 
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required 
-                />
-              </div>
-              <div className="form-group">
-                <label>Description</label>
-                <textarea 
-                  className="glass-input" 
-                  rows="3"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: user?.role === 'Admin' ? '1fr 1fr' : '1fr', gap: '16px' }}>
-                <div className="form-group">
-                  <label>Project</label>
-                  <select 
-                    className="glass-input" 
-                    value={projectId} 
-                    onChange={(e) => setProjectId(e.target.value)}
-                    style={{ backgroundColor: 'var(--bg-color)' }}
-                    required
-                  >
-                    <option value="" disabled>Select Project</option>
-                    {projects.map(p => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
-                </div>
-                {user?.role === 'Admin' && (
-                  <div className="form-group">
-                    <label>Assign To</label>
-                    <select 
-                      className="glass-input" 
-                      value={assignedTo} 
-                      onChange={(e) => setAssignedTo(e.target.value)}
-                      style={{ backgroundColor: 'var(--bg-color)' }}
-                      required
-                    >
-                      <option value="" disabled>Select User</option>
-                      {users.map(u => (
-                        <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label>Due Date</label>
-                <input 
-                  type="date" 
-                  className="glass-input" 
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  required 
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
-                <button type="button" className="glass-button" style={{ background: 'transparent', border: '1px solid var(--glass-border)' }} onClick={() => setIsModalOpen(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="glass-button">
-                  Add Task
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

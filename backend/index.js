@@ -130,20 +130,15 @@ app.get('/api/tasks', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/api/tasks', authenticateToken, async (req, res) => {
+app.post('/api/tasks', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    // Check if the maximum limit of 10 tasks has been reached
+    // Check if the maximum limit of 20 tasks has been reached
     const countResult = await db.get('SELECT COUNT(*) as count FROM tasks');
     if (countResult.count >= 20) {
       return res.status(400).json({ message: 'Maximum limit of 20 tasks reached.' });
     }
 
-    const { title, description, projectId, dueDate } = req.body;
-    // Admins can assign to anyone; Members are always assigned to themselves
-    const assignedTo = req.user.role === 'Admin' && req.body.assignedTo
-      ? req.body.assignedTo
-      : req.user.id;
-
+    const { title, description, projectId, assignedTo, dueDate } = req.body;
     const result = await db.run(
       'INSERT INTO tasks (title, description, projectId, assignedTo, dueDate, createdBy) VALUES (?, ?, ?, ?, ?, ?)',
       [title, description, projectId, assignedTo, dueDate, req.user.id]
