@@ -191,7 +191,7 @@ export default function Dashboard() {
                 {displayedTasks.map(task => (
                   <tr key={task.id}>
                     <td style={{ fontWeight: '500' }}>{task.title}</td>
-                    <td style={{ color: 'var(--text-muted)' }}>{task.projectName || 'N/A'}</td>
+                    <td style={{ color: 'var(--text-muted)' }}>{task.projectName || 'General'}</td>
                     <td>
                       <span className={`status-badge ${
                         task.status === 'In Progress' ? 'progress' :
