@@ -177,7 +177,7 @@ export default function Tasks() {
 
       {/* Kanban Board */}
       <div className="kanban-board">
-        {statuses.map((status) => {
+      {statuses.map((status) => {
           const colTasks = tasks.filter(t => t.status === status);
           const isQuickAdding = quickAdd === status;
           return (
@@ -189,7 +189,35 @@ export default function Tasks() {
             >
               <div className={`kanban-header ${status === 'In Progress' ? 'progress' : status.toLowerCase()}`}>
                 <span>{status}</span>
-                <span className="count">{colTasks.length}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="count">{colTasks.length}</span>
+                  {user?.role === 'Admin' && (
+                    <button
+                      onClick={() => { setQuickAdd(isQuickAdding ? null : status); setQuickTitle(''); }}
+                      title="Add task"
+                      style={{
+                        background: isQuickAdding ? 'rgba(232,98,42,0.25)' : 'rgba(255,255,255,0.08)',
+                        border: 'none',
+                        color: isQuickAdding ? 'var(--accent)' : 'var(--text-muted)',
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '18px',
+                        lineHeight: 1,
+                        transition: 'all 0.18s',
+                        flexShrink: 0,
+                      }}
+                      onMouseEnter={e => { if (!isQuickAdding) { e.currentTarget.style.background = 'rgba(232,98,42,0.2)'; e.currentTarget.style.color = 'var(--accent)'; } }}
+                      onMouseLeave={e => { if (!isQuickAdding) { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'var(--text-muted)'; } }}
+                    >
+                      +
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="kanban-body">
@@ -199,29 +227,23 @@ export default function Tasks() {
                 )}
               </div>
 
-              {/* Quick-add area — Admin only, Pending column */}
-              {user?.role === 'Admin' && status === 'Pending' && (
-                <div className="quick-add-area">
-                  {isQuickAdding ? (
-                    <form className="quick-add-form" onSubmit={handleQuickAdd}>
-                      <input
-                        autoFocus
-                        placeholder="Task title…"
-                        value={quickTitle}
-                        onChange={e => setQuickTitle(e.target.value)}
-                      />
-                      <div className="quick-add-actions">
-                        <button type="submit" className="btn-add">Add</button>
-                        <button type="button" className="btn-cancel" onClick={() => { setQuickAdd(null); setQuickTitle(''); }}>
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    <button className="quick-add-btn" onClick={() => setQuickAdd(status)}>
-                      <Plus size={14} /> Add a task
-                    </button>
-                  )}
+              {/* Quick-add area — Admin only, all columns */}
+              {user?.role === 'Admin' && (
+                <div className="quick-add-area" style={{ display: isQuickAdding ? 'block' : 'none' }}>
+                  <form className="quick-add-form" onSubmit={handleQuickAdd}>
+                    <input
+                      autoFocus
+                      placeholder="Task title…"
+                      value={quickTitle}
+                      onChange={e => setQuickTitle(e.target.value)}
+                    />
+                    <div className="quick-add-actions">
+                      <button type="submit" className="btn-add">Add</button>
+                      <button type="button" className="btn-cancel" onClick={() => { setQuickAdd(null); setQuickTitle(''); }}>
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
                 </div>
               )}
             </div>
