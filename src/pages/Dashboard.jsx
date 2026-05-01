@@ -193,7 +193,12 @@ export default function Dashboard() {
                     <td style={{ fontWeight: '500' }}>{task.title}</td>
                     <td style={{ color: 'var(--text-muted)' }}>{task.projectName || 'N/A'}</td>
                     <td>
-                      <span className={`status-badge ${task.status === 'In Progress' ? 'progress' : task.status.toLowerCase()}`}>
+                      <span className={`status-badge ${
+                        task.status === 'In Progress' ? 'progress' :
+                        task.status === 'Completed' ? 'completed' :
+                        task.status === 'Overdue' ? 'overdue' :
+                        'pending'
+                      }`}>
                         {task.status}
                       </span>
                     </td>

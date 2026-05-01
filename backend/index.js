@@ -33,6 +33,13 @@ const requireAdmin = (req, res, next) => {
 let db;
 getDb().then(database => {
   db = database;
+  const PORT = process.env.PORT || 5001;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}).catch(err => {
+  console.error('Failed to connect to database:', err);
+  process.exit(1);
 });
 
 // Auth Routes
@@ -205,7 +212,4 @@ app.get('/api/dashboard', authenticateToken, async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+

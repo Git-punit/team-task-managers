@@ -131,6 +131,12 @@ body {
   border-left: 3px solid var(--primary);
 }
 
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--glass-border);
+}
+
 .main-content {
   flex: 1;
   padding: 32px;
@@ -236,6 +242,11 @@ th {
   color: var(--success);
 }
 
+.status-badge.overdue {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
 /* Modals & Forms */
 .modal-overlay {
   position: fixed;
@@ -306,4 +317,35 @@ th {
 
 .kanban-card:active {
   cursor: grabbing;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .kanban-board {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    width: 220px;
+    padding: 16px;
+  }
+  .main-content {
+    padding: 16px;
+  }
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .app-container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
 }
