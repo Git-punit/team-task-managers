@@ -33,7 +33,7 @@ const requireAdmin = (req, res, next) => {
 let db;
 getDb().then(database => {
   db = database;
-  const PORT = process.env.PORT || 5001;
+  const PORT = process.env.PORT || 8080;
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
   });
