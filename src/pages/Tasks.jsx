@@ -17,6 +17,7 @@ export default function Tasks() {
   const [quickAdd, setQuickAdd] = useState(null); // 'Pending' | 'In Progress' | 'Completed'
   const [quickTitle, setQuickTitle] = useState('');
   const [quickDescription, setQuickDescription] = useState('');
+  const [quickDueDate, setQuickDueDate] = useState('');
 
   // Full modal form state
   const [title, setTitle] = useState('');
@@ -62,11 +63,12 @@ export default function Tasks() {
         description: quickDescription.trim(),
         projectId: projects[0]?.id || '',
         assignedTo: users[0]?.id || '',
-        dueDate: today,
+        dueDate: quickDueDate || today,
       });
       toast.success('Task added!');
       setQuickTitle('');
       setQuickDescription('');
+      setQuickDueDate('');
       setQuickAdd(null);
       fetchData();
     } catch (err) {
@@ -193,7 +195,7 @@ export default function Tasks() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span className="count">{colTasks.length}</span>
                   <button
-                    onClick={() => { setQuickAdd(isQuickAdding ? null : status); setQuickTitle(''); setQuickDescription(''); }}
+                    onClick={() => { setQuickAdd(isQuickAdding ? null : status); setQuickTitle(''); setQuickDescription(''); setQuickDueDate(''); }}
                     title="Add task"
                     style={{
                       background: isQuickAdding ? 'rgba(232,98,42,0.25)' : 'rgba(255,255,255,0.08)',
@@ -254,9 +256,25 @@ export default function Tasks() {
                         minHeight: '60px'
                       }}
                     />
+                    <input
+                      type="date"
+                      value={quickDueDate}
+                      onChange={e => setQuickDueDate(e.target.value)}
+                      style={{
+                        padding: '8px 12px',
+                        background: 'var(--bg)',
+                        border: '1px solid var(--accent)',
+                        borderRadius: 'var(--radius-sm)',
+                        color: 'var(--text)',
+                        fontSize: '0.9rem',
+                        outline: 'none',
+                        fontFamily: "'DM Sans', sans-serif",
+                        width: '100%',
+                      }}
+                    />
                     <div className="quick-add-actions">
                       <button type="submit" className="btn-add">Add</button>
-                      <button type="button" className="btn-cancel" onClick={() => { setQuickAdd(null); setQuickTitle(''); setQuickDescription(''); }}>
+                      <button type="button" className="btn-cancel" onClick={() => { setQuickAdd(null); setQuickTitle(''); setQuickDescription(''); setQuickDueDate(''); }}>
                         Cancel
                       </button>
                     </div>
