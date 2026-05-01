@@ -134,8 +134,8 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
   try {
     // Check if the maximum limit of 10 tasks has been reached
     const countResult = await db.get('SELECT COUNT(*) as count FROM tasks');
-    if (countResult.count >= 10) {
-      return res.status(400).json({ message: 'Maximum limit of 10 tasks reached.' });
+    if (countResult.count >= 20) {
+      return res.status(400).json({ message: 'Maximum limit of 20 tasks reached.' });
     }
 
     const { title, description, projectId, dueDate } = req.body;
